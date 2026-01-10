@@ -125,27 +125,27 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-[var(--color-bg-main)] flex flex-col">
             {alert && (
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
             {/* Header */}
-            <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3">
+            <header className="sticky top-0 z-20 bg-[#151621]/80 backdrop-blur-md border-b border-[#2A2B3A] px-4 py-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <Link href="/connect/partners" className="p-2 rounded-lg hover:bg-gray-100">
-                            <ArrowLeft className="w-5 h-5 text-gray-600" />
+                        <Link href="/connect/partners" className="p-2 rounded-lg hover:bg-[#1A1B26] transition-colors">
+                            <ArrowLeft className="w-5 h-5 text-gray-400" />
                         </Link>
 
                         {partner && (
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-semibold shadow-lg shadow-primary/20">
                                     {partner.name?.charAt(0) || 'U'}
                                 </div>
                                 <div>
-                                    <h1 className="font-semibold text-gray-800">{partner.name}</h1>
-                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                    <h1 className="font-semibold text-white">{partner.name}</h1>
+                                    <p className="text-xs text-gray-400 flex items-center gap-1">
                                         {partner.primaryGoal}
                                         {partner.progressStats?.currentStreak > 0 && (
                                             <span className="flex items-center gap-0.5 text-orange-500">
@@ -162,9 +162,9 @@ export default function ChatPage() {
                     <div className="relative">
                         <button
                             onClick={() => setShowOptions(!showOptions)}
-                            className="p-2 rounded-lg hover:bg-gray-100"
+                            className="p-2 rounded-lg hover:bg-[#1A1B26] transition-colors"
                         >
-                            <MoreVertical className="w-5 h-5 text-gray-600" />
+                            <MoreVertical className="w-5 h-5 text-gray-400" />
                         </button>
 
                         {showOptions && (
@@ -173,13 +173,13 @@ export default function ChatPage() {
                                     className="fixed inset-0 z-10"
                                     onClick={() => setShowOptions(false)}
                                 />
-                                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
+                                <div className="absolute right-0 top-full mt-1 w-48 bg-[#1A1B26] rounded-xl shadow-lg border border-[#2A2B3A] py-1 z-20">
                                     <button
                                         onClick={() => {
                                             setShowOptions(false);
                                             // View progress
                                         }}
-                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#151621] flex items-center gap-2"
                                     >
                                         <Target className="w-4 h-4" />
                                         View Progress
@@ -189,7 +189,7 @@ export default function ChatPage() {
                                             setShowOptions(false);
                                             handleRemovePartner();
                                         }}
-                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                         Remove Partner
@@ -205,14 +205,14 @@ export default function ChatPage() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {loading ? (
                     <div className="flex items-center justify-center h-full">
-                        <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="text-center py-12">
-                        <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
-                            <MessageSquare className="w-8 h-8 text-violet-500" />
+                        <div className="w-16 h-16 rounded-2xl bg-[#1A1B26] flex items-center justify-center mx-auto mb-4 border border-[#2A2B3A]">
+                            <MessageSquare className="w-8 h-8 text-primary" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-800 mb-2">Start the conversation</h3>
+                        <h3 className="text-lg font-medium text-white mb-2">Start the conversation</h3>
                         <p className="text-gray-500 text-sm">
                             Say hi to your study partner!
                         </p>
@@ -236,7 +236,7 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+            <div className="sticky bottom-0 bg-[#151621] border-t border-[#2A2B3A] p-4">
                 <form onSubmit={handleSend} className="flex items-center gap-2">
                     <input
                         ref={inputRef}
@@ -244,13 +244,13 @@ export default function ChatPage() {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                        className="flex-1 px-4 py-3 bg-[#1A1B26] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary border border-[#2A2B3A]"
                         maxLength={1000}
                     />
                     <Button
                         type="submit"
                         disabled={!newMessage.trim() || sending}
-                        className="h-12 w-12 p-0 flex items-center justify-center"
+                        className="h-12 w-12 p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-white"
                     >
                         {sending ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -270,7 +270,7 @@ function MessageBubble({ message, isOwn, showAvatar }) {
     if (isSystem) {
         return (
             <div className="text-center py-2">
-                <p className="text-xs text-gray-400 bg-gray-100 rounded-full px-3 py-1 inline-block">
+                <p className="text-xs text-gray-400 bg-[#1A1B26] border border-[#2A2B3A] rounded-full px-3 py-1 inline-block">
                     {message.content}
                 </p>
             </div>
@@ -283,7 +283,7 @@ function MessageBubble({ message, isOwn, showAvatar }) {
             isOwn ? "flex-row-reverse" : "flex-row"
         )}>
             {showAvatar && !isOwn ? (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
                     {message.senderId?.name?.charAt(0) || 'U'}
                 </div>
             ) : (
@@ -293,13 +293,13 @@ function MessageBubble({ message, isOwn, showAvatar }) {
             <div className={cn(
                 "max-w-[70%] px-4 py-2 rounded-2xl",
                 isOwn
-                    ? "bg-violet-500 text-white rounded-br-md"
-                    : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
+                    ? "bg-primary text-white rounded-br-md"
+                    : "bg-[#1A1B26] border border-[#2A2B3A] text-gray-200 rounded-bl-md"
             )}>
                 <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                 <p className={cn(
                     "text-xs mt-1",
-                    isOwn ? "text-violet-200" : "text-gray-400"
+                    isOwn ? "text-primary-100" : "text-gray-500"
                 )}>
                     {formatTime(message.createdAt)}
                 </p>

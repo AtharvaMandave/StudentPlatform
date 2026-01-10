@@ -18,14 +18,14 @@ export default function FilterBar({ filters, setFilters, options }) {
     };
 
     return (
-        <div className="card-white p-4 mb-6">
+        <div className="bg-[#151621] border border-[#2A2B3A] p-4 rounded-xl mb-6">
             <div className="flex items-center gap-2 mb-3">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Filters</span>
+                <Filter className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-medium text-white">Filters</span>
                 {hasActiveFilters && (
                     <button
                         onClick={clearFilters}
-                        className="ml-auto text-xs text-violet-600 hover:text-violet-700 flex items-center gap-1"
+                        className="ml-auto text-xs text-primary hover:text-white flex items-center gap-1 transition-colors"
                     >
                         <X className="w-3 h-3" />
                         Clear all
@@ -41,13 +41,13 @@ export default function FilterBar({ filters, setFilters, options }) {
                         value={filters.level}
                         onChange={(e) => setFilters(prev => ({ ...prev, level: e.target.value }))}
                         className={cn(
-                            "w-full px-3 py-2 text-sm rounded-lg border bg-white",
-                            "focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500",
-                            filters.level !== 'ALL' ? "border-violet-300 bg-violet-50" : "border-gray-200"
+                            "w-full px-3 py-2 text-sm rounded-lg border bg-[#0B0B15] text-white",
+                            "focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary",
+                            filters.level !== 'ALL' ? "border-primary/50 text-white" : "border-[#2A2B3A] text-gray-400"
                         )}
                     >
                         {options.levels.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.value} className="bg-[#0B0B15]">{opt.label}</option>
                         ))}
                     </select>
                 </div>
@@ -59,13 +59,13 @@ export default function FilterBar({ filters, setFilters, options }) {
                         value={filters.availability}
                         onChange={(e) => setFilters(prev => ({ ...prev, availability: e.target.value }))}
                         className={cn(
-                            "w-full px-3 py-2 text-sm rounded-lg border bg-white",
-                            "focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500",
-                            filters.availability !== 'ALL' ? "border-violet-300 bg-violet-50" : "border-gray-200"
+                            "w-full px-3 py-2 text-sm rounded-lg border bg-[#0B0B15] text-white",
+                            "focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary",
+                            filters.availability !== 'ALL' ? "border-primary/50 text-white" : "border-[#2A2B3A] text-gray-400"
                         )}
                     >
                         {options.availability.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.value} className="bg-[#0B0B15]">{opt.label}</option>
                         ))}
                     </select>
                 </div>
@@ -77,13 +77,13 @@ export default function FilterBar({ filters, setFilters, options }) {
                         value={filters.mode}
                         onChange={(e) => setFilters(prev => ({ ...prev, mode: e.target.value }))}
                         className={cn(
-                            "w-full px-3 py-2 text-sm rounded-lg border bg-white",
-                            "focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500",
-                            filters.mode !== 'ALL' ? "border-violet-300 bg-violet-50" : "border-gray-200"
+                            "w-full px-3 py-2 text-sm rounded-lg border bg-[#0B0B15] text-white",
+                            "focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary",
+                            filters.mode !== 'ALL' ? "border-primary/50 text-white" : "border-[#2A2B3A] text-gray-400"
                         )}
                     >
                         {options.modes.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.value} className="bg-[#0B0B15]">{opt.label}</option>
                         ))}
                     </select>
                 </div>
