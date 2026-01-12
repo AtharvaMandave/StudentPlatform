@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-    Search, Filter, Users, Target, Clock, BookOpen,
-    ChevronRight, UserPlus, Loader2, RefreshCw, Sparkles
+    Filter, RefreshCw, ArrowRight, Search,
+    Code, BookOpen, Briefcase, GraduationCap, Layout
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
+import { Card, CardHeader } from '@/components/ui/GlassCard'; // Renamed import but file is Card
+import { EmptyState, LoadingState } from '@/components/ui/EmptyState';
 import { connectAPI } from '@/lib/connectApi';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'; // Keep existing utility
 
-// Import NEW sidebar for dashboard layout
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import PartnerCard from '@/components/connect/PartnerCard';
 import FilterBar from '@/components/connect/FilterBar';
@@ -32,6 +33,7 @@ export default function DiscoverPage() {
     const [filterOptions, setFilterOptions] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
     const [hasProfile, setHasProfile] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
         checkProfile();
@@ -48,17 +50,13 @@ export default function DiscoverPage() {
         setCheckingProfile(true);
         try {
             const response = await connectAPI.getProfile();
-            // Handle both response structures
             const profile = response?.data || response;
-            console.log('Profile check response:', profile);
-
             if (profile && profile.isProfileComplete) {
                 setHasProfile(true);
             } else {
                 setHasProfile(false);
             }
         } catch (error) {
-            console.log('Profile check error:', error?.response?.status);
             setHasProfile(false);
         } finally {
             setCheckingProfile(false);
@@ -73,9 +71,10 @@ export default function DiscoverPage() {
             setPartners(data.partners || []);
             setPagination(data.pagination || { page: 1, pages: 1, total: 0 });
         } catch (error) {
+            console.error(error); // Log error for debugging
             setAlert({
                 type: 'error',
-                message: error.response?.data?.message || 'Failed to load partners',
+                message: 'Failed to load partners',
             });
         } finally {
             setLoading(false);
@@ -95,8 +94,8 @@ export default function DiscoverPage() {
     const handleSendRequest = async (userId) => {
         try {
             await connectAPI.sendRequest(userId);
-            setAlert({ type: 'success', message: 'Connection request sent!' });
-            // Remove from list
+            setAlert({ type: 'success', message: 'Request sent' });
+            // Optimistic update
             setPartners(prev => prev.filter(p => p.userId !== userId));
         } catch (error) {
             setAlert({
@@ -109,36 +108,37 @@ export default function DiscoverPage() {
     // Loading while checking profile
     if (checkingProfile) {
         return (
-            <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center">
-                <div className="text-center">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-                    <p className="text-gray-500">Loading...</p>
+            <div className="min-h-screen bg-white dark:bg-[#09090B] flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mb-4" />
+                    <p className="text-sm text-gray-500">Checking profile...</p>
                 </div>
             </div>
         );
     }
 
-    // No profile - show prompt to create
+    // No profile prompt
     if (!hasProfile) {
         return (
-            <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center p-4">
-                <div className="bg-[#151621] border border-[#2A2B3A] rounded-2xl p-8 max-w-md text-center animate-slide-up">
-                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                        <Users className="w-8 h-8 text-primary" />
+            <div className="min-h-screen bg-gray-50 dark:bg-[#09090B] flex items-center justify-center p-4">
+                <Card className="max-w-md w-full text-center">
+                    <div className="w-12 h-12 bg-gray-100 dark:bg-[#27272A] rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <Layout className="w-6 h-6 text-gray-900 dark:text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-3">
-                        Set Up Your Profile
+
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                        Set up your profile
                     </h2>
-                    <p className="text-gray-400 mb-6">
-                        Before you can find study partners, please complete your Student Connect profile.
+                    <p className="text-sm text-gray-500 mb-6">
+                        Complete your profile to start matchmaking with other students.
                     </p>
-                    <Link href="/connect/profile">
-                        <Button className="w-full">
+
+                    <Link href="/connect/profile" className="block">
+                        <Button className="w-full bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
                             Create Profile
-                            <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
                     </Link>
-                </div>
+                </Card>
             </div>
         );
     }
@@ -149,93 +149,98 @@ export default function DiscoverPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="p-6">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <ConnectNav />
 
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                {/* Page Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Find Study Partners</h1>
-                        <p className="text-gray-400 text-sm mt-1">
-                            Connect with students who share your goals
-                        </p>
+                        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">Discover</h1>
+                        <p className="text-sm text-gray-500 mt-1">Find study partners that match your goals.</p>
                     </div>
-                    <Button variant="secondary" onClick={fetchPartners} disabled={loading} className="bg-[#151621] border border-[#2A2B3A] text-white hover:bg-[#1E1F2E]">
-                        <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
-                        Refresh
-                    </Button>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={cn(
+                                "border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] text-gray-700 dark:text-gray-300",
+                                showFilters && "bg-gray-100 dark:bg-[#27272A]"
+                            )}
+                        >
+                            <Filter className="w-3.5 h-3.5 mr-2" />
+                            Filters
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={fetchPartners}
+                            disabled={loading}
+                            className="border-gray-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] text-gray-700 dark:text-gray-300"
+                        >
+                            <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Filters */}
-                {filterOptions && (
-                    <FilterBar
-                        filters={filters}
-                        setFilters={setFilters}
-                        options={filterOptions}
-                    />
+                {showFilters && filterOptions && (
+                    <div className="mb-8 p-4 bg-gray-50 dark:bg-[#18181B] rounded-lg border border-gray-200 dark:border-[#27272A]">
+                        <FilterBar
+                            filters={filters}
+                            setFilters={setFilters}
+                            options={filterOptions}
+                        />
+                    </div>
                 )}
 
-                {/* Results */}
+                {/* Content */}
                 {loading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                    </div>
+                    <LoadingState count={6} type="card" />
                 ) : partners.length === 0 ? (
-                    <div className="text-center py-20">
-                        <div className="w-16 h-16 rounded-2xl bg-[#1A1B26] flex items-center justify-center mx-auto mb-4">
-                            <Users className="w-8 h-8 text-gray-500" />
-                        </div>
-                        <h3 className="text-lg font-medium text-white mb-2">No partners found</h3>
-                        <p className="text-gray-500 text-sm mb-6">
-                            Try adjusting your filters or check back later
-                        </p>
-                        <Button variant="secondary" onClick={() => setFilters({ level: 'ALL', availability: 'ALL', mode: 'ALL' })} className="border-gray-700 text-gray-300">
-                            Reset Filters
+                    <EmptyState
+                        icon={Search}
+                        title="No partners found"
+                        description="Try adjusting your filters to see more results."
+                        action={() => setFilters({ level: 'ALL', availability: 'ALL', mode: 'ALL' })}
+                        actionLabel="Clear Filters"
+                    />
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {partners.map((partner) => (
+                            <PartnerCard
+                                key={partner.userId}
+                                partner={partner}
+                                onSendRequest={handleSendRequest}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {pagination.pages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-8 py-4 border-t border-gray-100 dark:border-[#27272A]">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={pagination.page === 1}
+                            onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                            className="text-gray-500"
+                        >
+                            Previous
+                        </Button>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white px-2">
+                            Page {pagination.page} of {pagination.pages}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={pagination.page === pagination.pages}
+                            onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                            className="text-gray-500"
+                        >
+                            Next
                         </Button>
                     </div>
-                ) : (
-                    <>
-                        <p className="text-sm text-gray-500 mb-4">
-                            Found {pagination.total} potential partner{pagination.total !== 1 ? 's' : ''}
-                        </p>
-
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {partners.map((partner) => (
-                                <PartnerCard
-                                    key={partner.userId}
-                                    partner={partner}
-                                    onSendRequest={handleSendRequest}
-                                />
-                            ))}
-                        </div>
-
-                        {/* Pagination */}
-                        {pagination.pages > 1 && (
-                            <div className="flex items-center justify-center gap-2 mt-8">
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    disabled={pagination.page === 1}
-                                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                                    className="bg-[#151621] text-white border-gray-700"
-                                >
-                                    Previous
-                                </Button>
-                                <span className="text-sm text-gray-500 px-4">
-                                    Page {pagination.page} of {pagination.pages}
-                                </span>
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    disabled={pagination.page === pagination.pages}
-                                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                                    className="bg-[#151621] text-white border-gray-700"
-                                >
-                                    Next
-                                </Button>
-                            </div>
-                        )}
-                    </>
                 )}
             </div>
         </DashboardLayout>

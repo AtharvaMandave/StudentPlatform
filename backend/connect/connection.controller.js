@@ -425,6 +425,158 @@ export const blockUser = async (req, res) => {
     }
 };
 
+/**
+ * Complete onboarding for a connection
+ */
+export const completeOnboarding = async (req, res) => {
+    try {
+        const { connectionId } = req.params;
+        const { primaryGoal, studyFrequency, communicationExpectations } = req.body;
+
+        const connection = await Connection.findOne({
+            _id: connectionId,
+            status: "ACCEPTED",
+            $or: [{ requesterId: req.user._id }, { receiverId: req.user._id }],
+        });
+
+        if (!connection) {
+            return res.status(404).json({
+                success: false,
+                message: "Connection not found",
+            });
+        }
+
+        await connection.completeOnboarding(req.user._id, {
+            primaryGoal,
+            studyFrequency,
+            communicationExpectations,
+        });
+
+        res.json({
+            success: true,
+            message: "Onboarding preferences saved",
+            data: {
+                isComplete: connection.onboarding.isComplete,
+                yourComplete: connection.requesterId.toString() === req.user._id.toString()
+                    ? connection.onboarding.requesterComplete
+                    : connection.onboarding.receiverComplete,
+                partnerComplete: connection.requesterId.toString() === req.user._id.toString()
+                    ? connection.onboarding.receiverComplete
+                    : connection.onboarding.requesterComplete,
+            },
+        });
+    } catch (error) {
+        console.error("Complete onboarding error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to complete onboarding",
+        });
+    }
+};
+
+/**
+ * Unmatch a partner (graceful disconnection)
+ */
+export const unmatchPartner = async (req, res) => {
+    try {
+        const { connectionId } = req.params;
+        const { reason, preserveProgress = true } = req.body;
+
+        const connection = await Connection.findOne({
+            _id: connectionId,
+            status: "ACCEPTED",
+            $or: [{ requesterId: req.user._id }, { receiverId: req.user._id }],
+        });
+
+        if (!connection) {
+            return res.status(404).json({
+                success: false,
+                message: "Connection not found",
+            });
+        }
+
+        await connection.unmatch(req.user._id, reason, preserveProgress);
+
+        // Create system message
+        await Message.createSystemMessage(
+            connectionId,
+            "This study partnership has ended. Progress has been preserved."
+        );
+
+        res.json({
+            success: true,
+            message: "Partnership ended successfully",
+            data: {
+                unmatchedAt: connection.unmatchedAt,
+                progressPreserved: connection.progressPreserved,
+            },
+        });
+    } catch (error) {
+        console.error("Unmatch partner error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to unmatch partner",
+        });
+    }
+};
+
+/**
+ * Get suggested rematches after unmatching
+ */
+export const getSuggestedRematches = async (req, res) => {
+    try {
+        // Get user's profile to find similar users
+        const profile = await StudentProfile.findOne({ userId: req.user._id });
+
+        if (!profile) {
+            return res.status(400).json({
+                success: false,
+                message: "Please complete your profile first",
+            });
+        }
+
+        // Get past unmatched connections to exclude
+        const pastConnections = await Connection.find({
+            $or: [{ requesterId: req.user._id }, { receiverId: req.user._id }],
+        });
+
+        const excludeIds = pastConnections.map((c) =>
+            c.requesterId.toString() === req.user._id.toString()
+                ? c.receiverId
+                : c.requesterId
+        );
+
+        // Find potential matches excluding past connections
+        const matches = await StudentProfile.find({
+            userId: { $ne: req.user._id, $nin: excludeIds },
+            primaryGoal: profile.primaryGoal,
+            isProfileComplete: true,
+            "settings.allowRequests": { $ne: "NONE" },
+        })
+            .populate("userId", "name email")
+            .limit(10);
+
+        const suggestions = matches.map((match) => ({
+            userId: match.userId._id,
+            name: match.userId.name,
+            primaryGoal: match.primaryGoal,
+            studyLevel: match.studyLevel,
+            currentFocus: match.currentFocus,
+        }));
+
+        res.json({
+            success: true,
+            data: suggestions,
+        });
+    } catch (error) {
+        console.error("Get suggested rematches error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to get rematch suggestions",
+        });
+    }
+};
+
 export default {
     sendRequest,
     getPendingRequests,
@@ -434,4 +586,7 @@ export default {
     getPartners,
     removePartner,
     blockUser,
+    completeOnboarding,
+    unmatchPartner,
+    getSuggestedRematches,
 };

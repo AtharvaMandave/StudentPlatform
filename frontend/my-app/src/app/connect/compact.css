@@ -1,0 +1,21 @@
+/* Compact layout for Student Connect pages */
+.connect-page {
+    padding: 0.5rem 1rem !important;
+}
+
+.connect-page .max-w-5xl,
+.connect-page .max-w-6xl,
+.connect-page .max-w-4xl {
+    max-width: 100% !important;
+}
+
+/* Reduce spacing in Connect pages */
+.connect-page>div {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* Compact ConnectNav */
+nav.connect-nav {
+    margin-bottom: 1rem !important;
+}

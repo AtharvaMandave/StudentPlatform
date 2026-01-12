@@ -22,8 +22,35 @@ const messageSchema = new mongoose.Schema(
 
         type: {
             type: String,
-            enum: ["TEXT", "SYSTEM"],
+            enum: ["TEXT", "SYSTEM", "DOUBT", "RESOURCE", "CHECK_IN", "NUDGE", "MILESTONE"],
             default: "TEXT",
+        },
+
+        // Metadata for structured messages (DOUBT, RESOURCE, etc.)
+        metadata: {
+            // For DOUBT messages
+            topic: String,
+            isResolved: {
+                type: Boolean,
+                default: false,
+            },
+            // For RESOURCE messages
+            resourceId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "SharedResource",
+            },
+            resourceType: String,
+            // For NUDGE messages
+            nudgeType: {
+                type: String,
+                enum: ["STUDY_REMINDER", "CHECKIN_REMINDER", "ENCOURAGEMENT", "CELEBRATION"],
+            },
+            // For MILESTONE messages
+            milestoneId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Milestone",
+            },
+            badgeName: String,
         },
 
         isRead: {

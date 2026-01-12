@@ -2,37 +2,40 @@
 
 const StatisticsChart = () => {
     return (
-        <div className="bg-[#151621] p-6 rounded-2xl border border-[#2A2B3A]">
-            <h3 className="text-base font-semibold text-white mb-6">Statistics on March</h3>
+        <div className="bg-[#121217] p-6 rounded-xl border border-white/10">
+            <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-wider">Performance</h3>
 
-            {/* Chart Visualization (CSS only for now) */}
+            {/* Chart Visualization */}
             <div className="flex justify-center mb-8 relative">
                 <div className="relative w-40 h-40">
                     <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="80" cy="80" r="70" stroke="#1F1F2E" strokeWidth="20" fill="transparent" />
-                        <circle cx="80" cy="80" r="70" stroke="#6366F1" strokeWidth="20" fill="transparent" strokeDasharray="440" strokeDashoffset="145" strokeLinecap="round" />
-                        <circle cx="80" cy="80" r="70" stroke="#10B981" strokeWidth="20" fill="transparent" strokeDasharray="440" strokeDashoffset="350" strokeLinecap="round" className="opacity-80" />
+                        {/* Background Ring */}
+                        <circle cx="80" cy="80" r="70" stroke="#27272A" strokeWidth="12" fill="transparent" />
+                        {/* Progress Ring 1 */}
+                        <circle cx="80" cy="80" r="70" stroke="#FFFFFF" strokeWidth="12" fill="transparent" strokeDasharray="440" strokeDashoffset="145" strokeLinecap="round" />
+                        {/* Progress Ring 2 - Subtle */}
+                        <circle cx="80" cy="80" r="70" stroke="#52525B" strokeWidth="12" fill="transparent" strokeDasharray="440" strokeDashoffset="350" strokeLinecap="round" className="opacity-50" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center flex-col">
-                        <span className="text-2xl font-bold text-white">67%</span>
-                        <span className="text-xs text-gray-400">Avg</span>
+                        <span className="text-3xl font-bold text-white tracking-tighter">67%</span>
+                        <span className="text-[10px] text-gray-500 uppercase tracking-widest">AVG</span>
                     </div>
                 </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
                 {[
-                    { label: 'Class complete', val: '68%', color: 'bg-primary' },
-                    { label: 'Assignment complete', val: '68%', color: 'bg-emerald-500' },
-                    { label: 'Session complete', val: '68%', color: 'bg-orange-500' }
+                    { label: 'Class complete', val: '68%', color: 'bg-white' },
+                    { label: 'Assignment complete', val: '54%', color: 'bg-zinc-500' },
+                    { label: 'Session complete', val: '32%', color: 'bg-zinc-700' }
                 ].map((item, i) => (
                     <div key={i}>
                         <div className="flex justify-between text-xs mb-2">
-                            <span className="text-gray-400">{item.label}</span>
-                            <span className="text-white">{item.val}</span>
+                            <span className="text-gray-400 font-medium">{item.label}</span>
+                            <span className="text-white font-mono">{item.val}</span>
                         </div>
-                        <div className="h-1.5 w-full bg-[#2A2B3A] rounded-full overflow-hidden">
-                            <div className={`h-full ${item.color} rounded-full w-[68%]`}></div>
+                        <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <div className={`h-full ${item.color} rounded-full`} style={{ width: item.val }}></div>
                         </div>
                     </div>
                 ))}

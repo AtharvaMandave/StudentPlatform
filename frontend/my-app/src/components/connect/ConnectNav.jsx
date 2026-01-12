@@ -3,38 +3,49 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Search, Users, UserPlus, Settings } from 'lucide-react';
+import {
+    Users, Compass, CalendarCheck, MessageSquare, Bell, Trophy, TrendingUp, FolderOpen
+} from 'lucide-react';
 
-export default function ConnectNav() {
+export default function ConnectNav({ pendingCount = 0 }) {
     const pathname = usePathname();
 
-    const tabs = [
-        { name: 'Discover', href: '/connect', icon: Search },
-        { name: 'My Partners', href: '/connect/partners', icon: Users },
-        { name: 'Requests', href: '/connect/requests', icon: UserPlus },
-        { name: 'Profile', href: '/connect/profile', icon: Settings },
+    const navItems = [
+        { href: '/connect', label: 'Discover', icon: Compass },
+        { href: '/connect/partners', label: 'My Partners', icon: Users },
+        { href: '/connect/requests', label: 'Requests', icon: Bell, badge: pendingCount },
+        { href: '/connect/resources', label: 'Resources', icon: FolderOpen },
+        { href: '/connect/progress', label: 'Progress', icon: TrendingUp },
+        { href: '/connect/milestones', label: 'Milestones', icon: Trophy },
     ];
 
     return (
-        <div className="flex flex-wrap items-center gap-2 mb-8 bg-[#151621] p-1.5 rounded-xl border border-[#2A2B3A] w-fit">
-            {tabs.map((tab) => {
-                const isActive = pathname === tab.href;
+        <nav className="flex items-center gap-1 mb-8 overflow-x-auto pb-1 border-b border-gray-200 dark:border-[#27272A] no-scrollbar">
+            {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                const Icon = item.icon;
+
                 return (
                     <Link
-                        key={tab.href}
-                        href={tab.href}
+                        key={item.href}
+                        href={item.href}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                            "flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 transition-all whitespace-nowrap",
                             isActive
-                                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                                : "text-gray-400 hover:text-white hover:bg-[#1E1F2E]"
+                                ? "border-gray-900 text-gray-900 dark:border-white dark:text-white"
+                                : "border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
                         )}
                     >
-                        <tab.icon className="w-4 h-4" />
-                        {tab.name}
+                        <Icon className={cn("w-4 h-4", isActive ? "text-gray-900 dark:text-white" : "text-gray-400")} />
+                        {item.label}
+                        {item.badge > 0 && (
+                            <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-600">
+                                {item.badge}
+                            </span>
+                        )}
                     </Link>
                 );
             })}
-        </div>
+        </nav>
     );
 }

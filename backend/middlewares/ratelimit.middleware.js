@@ -40,7 +40,7 @@ export const emailLimiter = rateLimit({
 /* General API limiter */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per 15 minutes
+  max: 500, // 500 requests per 15 minutes (increased for development)
   standardHeaders: true,
   legacyHeaders: false,
   message: {

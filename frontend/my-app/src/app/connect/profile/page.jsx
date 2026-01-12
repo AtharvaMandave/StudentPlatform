@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     ArrowRight, ArrowLeft, Check, Target, BookOpen,
-    Clock, MessageSquare, Sparkles
+    Clock, MessageSquare, User
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
@@ -58,7 +58,6 @@ export default function ProfileSetupPage() {
     });
 
     useEffect(() => {
-        // Check if profile exists
         const fetchProfile = async () => {
             try {
                 const { data } = await connectAPI.getProfile();
@@ -121,15 +120,15 @@ export default function ProfileSetupPage() {
                 )}
 
                 <div className="flex justify-center mt-6">
-                    <div className="bg-[#151621] border border-[#2A2B3A] p-8 max-w-2xl w-full animate-slide-up rounded-2xl">
+                    <div className="bg-[#121217] border border-white/10 p-8 max-w-2xl w-full rounded-xl">
                         {/* Header */}
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20">
-                                <Sparkles className="w-6 h-6 text-white" />
+                            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                                <User className="w-5 h-5 text-black" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-white">Student Connect</h1>
-                                <p className="text-sm text-gray-400">Set up your study partner profile</p>
+                                <h1 className="text-xl font-bold text-white">Student Connect Profile</h1>
+                                <p className="text-xs text-gray-500">Set up your study partner preferences</p>
                             </div>
                         </div>
 
@@ -138,17 +137,17 @@ export default function ProfileSetupPage() {
                             {[1, 2, 3, 4].map((s) => (
                                 <div key={s} className="flex-1 flex items-center">
                                     <div className={cn(
-                                        "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
-                                        s < step ? "bg-primary text-white" :
-                                            s === step ? "bg-primary text-white shadow-lg shadow-primary/25" :
-                                                "bg-[#1A1B26] text-gray-500 border border-[#2A2B3A]"
+                                        "w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all",
+                                        s < step ? "bg-white text-black" :
+                                            s === step ? "bg-white text-black ring-2 ring-white/20 ring-offset-2 ring-offset-[#121217]" :
+                                                "bg-white/10 text-gray-500"
                                     )}>
-                                        {s < step ? <Check className="w-4 h-4" /> : s}
+                                        {s < step ? <Check className="w-3 h-3" /> : s}
                                     </div>
                                     {s < 4 && (
                                         <div className={cn(
-                                            "flex-1 h-1 mx-2 rounded-full transition-all",
-                                            s < step ? "bg-primary" : "bg-[#1A1B26]"
+                                            "flex-1 h-0.5 mx-2 rounded-full transition-all",
+                                            s < step ? "bg-white" : "bg-white/10"
                                         )} />
                                     )}
                                 </div>
@@ -157,13 +156,13 @@ export default function ProfileSetupPage() {
 
                         {/* Step 1: Goal Selection */}
                         {step === 1 && (
-                            <div className="animate-fade-in">
+                            <div>
                                 <div className="mb-6">
-                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <Target className="w-5 h-5 text-primary" />
+                                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Target className="w-5 h-5 text-gray-400" />
                                         What's your primary goal?
                                     </h2>
-                                    <p className="text-gray-400 text-sm mt-1">
+                                    <p className="text-gray-500 text-sm mt-1">
                                         We'll match you with partners who share the same goal
                                     </p>
                                 </div>
@@ -175,24 +174,24 @@ export default function ProfileSetupPage() {
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, primaryGoal: goal.value }))}
                                             className={cn(
-                                                "p-4 rounded-xl border text-left transition-all",
+                                                "p-4 rounded-lg border text-left transition-all",
                                                 formData.primaryGoal === goal.value
-                                                    ? "border-primary bg-primary/10"
-                                                    : "border-[#2A2B3A] bg-[#1A1B26] hover:border-gray-600 hover:bg-[#1E1F2E]"
+                                                    ? "border-white bg-white/5"
+                                                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
                                             )}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <span className="text-2xl">{goal.icon}</span>
                                                 <div>
-                                                    <p className="font-medium text-white">{goal.label}</p>
-                                                    <p className="text-xs text-gray-400">{goal.desc}</p>
+                                                    <p className="font-medium text-white text-sm">{goal.label}</p>
+                                                    <p className="text-xs text-gray-500">{goal.desc}</p>
                                                 </div>
                                             </div>
                                         </button>
                                     ))}
                                 </div>
 
-                                <Button onClick={nextStep} className="w-full bg-primary hover:bg-primary/90 text-white">
+                                <Button onClick={nextStep} className="w-full bg-white hover:bg-gray-200 text-black">
                                     Continue
                                     <ArrowRight className="w-4 h-4 ml-2" />
                                 </Button>
@@ -201,13 +200,13 @@ export default function ProfileSetupPage() {
 
                         {/* Step 2: Level Selection */}
                         {step === 2 && (
-                            <div className="animate-fade-in">
+                            <div>
                                 <div className="mb-6">
-                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <BookOpen className="w-5 h-5 text-primary" />
+                                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <BookOpen className="w-5 h-5 text-gray-400" />
                                         What's your current level?
                                     </h2>
-                                    <p className="text-gray-400 text-sm mt-1">
+                                    <p className="text-gray-500 text-sm mt-1">
                                         This helps us find partners at a similar stage
                                     </p>
                                 </div>
@@ -219,24 +218,24 @@ export default function ProfileSetupPage() {
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, studyLevel: level.value }))}
                                             className={cn(
-                                                "w-full p-4 rounded-xl border text-left transition-all",
+                                                "w-full p-4 rounded-lg border text-left transition-all",
                                                 formData.studyLevel === level.value
-                                                    ? "border-primary bg-primary/10"
-                                                    : "border-[#2A2B3A] bg-[#1A1B26] hover:border-gray-600 hover:bg-[#1E1F2E]"
+                                                    ? "border-white bg-white/5"
+                                                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
                                             )}
                                         >
-                                            <p className="font-medium text-white">{level.label}</p>
-                                            <p className="text-sm text-gray-400">{level.desc}</p>
+                                            <p className="font-medium text-white text-sm">{level.label}</p>
+                                            <p className="text-xs text-gray-500">{level.desc}</p>
                                         </button>
                                     ))}
                                 </div>
 
                                 <div className="flex gap-3">
-                                    <Button variant="secondary" onClick={prevStep} className="flex-1 bg-[#1A1B26] text-white border border-[#2A2B3A] hover:bg-[#2A2B3A]">
+                                    <Button variant="secondary" onClick={prevStep} className="flex-1">
                                         <ArrowLeft className="w-4 h-4 mr-2" />
                                         Back
                                     </Button>
-                                    <Button onClick={nextStep} className="flex-1 bg-primary hover:bg-primary/90 text-white">
+                                    <Button onClick={nextStep} className="flex-1 bg-white hover:bg-gray-200 text-black">
                                         Continue
                                         <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
@@ -246,13 +245,13 @@ export default function ProfileSetupPage() {
 
                         {/* Step 3: Availability */}
                         {step === 3 && (
-                            <div className="animate-fade-in">
+                            <div>
                                 <div className="mb-6">
-                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <Clock className="w-5 h-5 text-primary" />
+                                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-gray-400" />
                                         When are you available?
                                     </h2>
-                                    <p className="text-gray-400 text-sm mt-1">
+                                    <p className="text-gray-500 text-sm mt-1">
                                         Match with partners who have similar schedules
                                     </p>
                                 </div>
@@ -267,20 +266,20 @@ export default function ProfileSetupPage() {
                                                 availability: { ...prev.availability, type: avail.value }
                                             }))}
                                             className={cn(
-                                                "w-full p-4 rounded-xl border text-left transition-all",
+                                                "w-full p-4 rounded-lg border text-left transition-all",
                                                 formData.availability.type === avail.value
-                                                    ? "border-primary bg-primary/10"
-                                                    : "border-[#2A2B3A] bg-[#1A1B26] hover:border-gray-600 hover:bg-[#1E1F2E]"
+                                                    ? "border-white bg-white/5"
+                                                    : "border-white/10 hover:border-white/20 hover:bg-white/5"
                                             )}
                                         >
-                                            <p className="font-medium text-white">{avail.label}</p>
-                                            <p className="text-sm text-gray-400">{avail.desc}</p>
+                                            <p className="font-medium text-white text-sm">{avail.label}</p>
+                                            <p className="text-xs text-gray-500">{avail.desc}</p>
                                         </button>
                                     ))}
                                 </div>
 
                                 <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
                                         Hours per day: {formData.availability.hoursPerDay}
                                     </label>
                                     <input
@@ -292,20 +291,20 @@ export default function ProfileSetupPage() {
                                             ...prev,
                                             availability: { ...prev.availability, hoursPerDay: parseInt(e.target.value) }
                                         }))}
-                                        className="w-full h-2 bg-[#2A2B3A] rounded-lg appearance-none cursor-pointer accent-primary"
+                                        className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-white"
                                     />
-                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <div className="flex justify-between text-xs text-gray-600 mt-1">
                                         <span>1 hour</span>
                                         <span>8 hours</span>
                                     </div>
                                 </div>
 
                                 <div className="flex gap-3">
-                                    <Button variant="secondary" onClick={prevStep} className="flex-1 bg-[#1A1B26] text-white border border-[#2A2B3A] hover:bg-[#2A2B3A]">
+                                    <Button variant="secondary" onClick={prevStep} className="flex-1">
                                         <ArrowLeft className="w-4 h-4 mr-2" />
                                         Back
                                     </Button>
-                                    <Button onClick={nextStep} className="flex-1 bg-primary hover:bg-primary/90 text-white">
+                                    <Button onClick={nextStep} className="flex-1 bg-white hover:bg-gray-200 text-black">
                                         Continue
                                         <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
@@ -315,19 +314,19 @@ export default function ProfileSetupPage() {
 
                         {/* Step 4: Mode & Bio */}
                         {step === 4 && (
-                            <div className="animate-fade-in">
+                            <div>
                                 <div className="mb-6">
-                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <MessageSquare className="w-5 h-5 text-primary" />
+                                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <MessageSquare className="w-5 h-5 text-gray-400" />
                                         Final touches
                                     </h2>
-                                    <p className="text-gray-400 text-sm mt-1">
+                                    <p className="text-gray-500 text-sm mt-1">
                                         Add some details to help others know you better
                                     </p>
                                 </div>
 
                                 <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
                                         Preferred study mode
                                     </label>
                                     <div className="grid grid-cols-3 gap-3">
@@ -337,21 +336,21 @@ export default function ProfileSetupPage() {
                                                 type="button"
                                                 onClick={() => setFormData(prev => ({ ...prev, preferredMode: mode.value }))}
                                                 className={cn(
-                                                    "p-3 rounded-xl border text-center transition-all",
+                                                    "p-3 rounded-lg border text-center transition-all",
                                                     formData.preferredMode === mode.value
-                                                        ? "border-primary bg-primary/10"
-                                                        : "border-[#2A2B3A] bg-[#1A1B26] hover:border-gray-600"
+                                                        ? "border-white bg-white text-black"
+                                                        : "border-white/10 hover:border-white/20 text-gray-400"
                                                 )}
                                             >
                                                 <span className="text-xl">{mode.icon}</span>
-                                                <p className="text-sm font-medium text-gray-300 mt-1">{mode.label}</p>
+                                                <p className="text-xs font-medium mt-1">{mode.label}</p>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
                                 <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
                                         Current focus (optional)
                                     </label>
                                     <input
@@ -359,31 +358,31 @@ export default function ProfileSetupPage() {
                                         value={formData.currentFocus}
                                         onChange={(e) => setFormData(prev => ({ ...prev, currentFocus: e.target.value }))}
                                         placeholder="e.g., Learning React, Solving Arrays"
-                                        className="w-full bg-[#1A1B26] border border-[#2A2B3A] rounded-xl px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 text-sm"
                                         maxLength={100}
                                     />
                                 </div>
 
                                 <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
                                         Bio (optional)
                                     </label>
                                     <textarea
                                         value={formData.bio}
                                         onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                                         placeholder="Tell potential partners a bit about yourself..."
-                                        className="w-full bg-[#1A1B26] border border-[#2A2B3A] rounded-xl px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary min-h-[100px] resize-none"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 min-h-[100px] resize-none text-sm"
                                         maxLength={300}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">{formData.bio.length}/300</p>
+                                    <p className="text-xs text-gray-600 mt-1">{formData.bio.length}/300</p>
                                 </div>
 
                                 <div className="flex gap-3">
-                                    <Button variant="secondary" onClick={prevStep} className="flex-1 bg-[#1A1B26] text-white border border-[#2A2B3A] hover:bg-[#2A2B3A]">
+                                    <Button variant="secondary" onClick={prevStep} className="flex-1">
                                         <ArrowLeft className="w-4 h-4 mr-2" />
                                         Back
                                     </Button>
-                                    <Button onClick={handleSubmit} loading={loading} className="flex-1 bg-primary hover:bg-primary/90 text-white">
+                                    <Button onClick={handleSubmit} loading={loading} className="flex-1 bg-white hover:bg-gray-200 text-black">
                                         {existingProfile ? 'Update Profile' : 'Create Profile'}
                                     </Button>
                                 </div>

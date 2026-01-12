@@ -15,7 +15,7 @@ const connectionSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ["PENDING", "ACCEPTED", "REJECTED", "BLOCKED"],
+            enum: ["PENDING", "ACCEPTED", "REJECTED", "BLOCKED", "UNMATCHED"],
             default: "PENDING",
         },
 
@@ -53,6 +53,65 @@ const connectionSchema = new mongoose.Schema(
         actionReason: {
             type: String,
             maxlength: 200,
+        },
+
+        // Onboarding Status (Phase 1 Enhancement)
+        onboarding: {
+            isComplete: {
+                type: Boolean,
+                default: false,
+            },
+            requesterComplete: {
+                type: Boolean,
+                default: false,
+            },
+            receiverComplete: {
+                type: Boolean,
+                default: false,
+            },
+            completedAt: Date,
+            preferences: {
+                primaryGoal: String,
+                studyFrequency: {
+                    type: String,
+                    enum: ["DAILY", "EVERY_OTHER_DAY", "WEEKENDS", "WEEKLY"],
+                },
+                communicationExpectations: {
+                    type: String,
+                    enum: ["HIGH", "MEDIUM", "LOW"],
+                },
+            },
+        },
+
+        // Study Plan Reference
+        studyPlanId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "StudyPlan",
+        },
+
+        // Connection Health Reference
+        connectionHealthId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ConnectionHealth",
+        },
+
+        // Unmatch tracking
+        unmatchedAt: Date,
+        unmatchReason: {
+            type: String,
+            enum: ["DIFFERENT_PACE", "TIME_MISMATCH", "GOAL_CHANGE", "INACTIVE", "PERSONAL", "OTHER"],
+        },
+        unmatchedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+        progressPreserved: {
+            type: Boolean,
+            default: true,
+        },
+        canRematch: {
+            type: Boolean,
+            default: true,
         },
     },
     {
@@ -143,6 +202,69 @@ connectionSchema.methods.block = async function (reason = null) {
         );
     }
 
+    return this;
+};
+
+// Method to unmatch (graceful disconnection)
+connectionSchema.methods.unmatch = async function (userId, reason = "OTHER", preserveProgress = true) {
+    const StudentProfile = mongoose.model("StudentProfile");
+    const wasAccepted = this.status === "ACCEPTED";
+
+    this.status = "UNMATCHED";
+    this.unmatchedAt = new Date();
+    this.unmatchedBy = userId;
+    this.unmatchReason = reason;
+    this.progressPreserved = preserveProgress;
+    await this.save();
+
+    // Decrement partner count
+    if (wasAccepted) {
+        await StudentProfile.updateOne(
+            { userId: this.requesterId },
+            { $inc: { activePartnersCount: -1 } }
+        );
+        await StudentProfile.updateOne(
+            { userId: this.receiverId },
+            { $inc: { activePartnersCount: -1 } }
+        );
+    }
+
+    return this;
+};
+
+// Method to complete onboarding for a user
+connectionSchema.methods.completeOnboarding = async function (userId, preferences = {}) {
+    const isRequester = this.requesterId.toString() === userId.toString();
+    const isReceiver = this.receiverId.toString() === userId.toString();
+
+    if (!isRequester && !isReceiver) {
+        throw new Error("User is not part of this connection");
+    }
+
+    if (isRequester) {
+        this.onboarding.requesterComplete = true;
+    } else {
+        this.onboarding.receiverComplete = true;
+    }
+
+    // Merge preferences
+    if (preferences.primaryGoal) {
+        this.onboarding.preferences.primaryGoal = preferences.primaryGoal;
+    }
+    if (preferences.studyFrequency) {
+        this.onboarding.preferences.studyFrequency = preferences.studyFrequency;
+    }
+    if (preferences.communicationExpectations) {
+        this.onboarding.preferences.communicationExpectations = preferences.communicationExpectations;
+    }
+
+    // Check if both completed
+    if (this.onboarding.requesterComplete && this.onboarding.receiverComplete) {
+        this.onboarding.isComplete = true;
+        this.onboarding.completedAt = new Date();
+    }
+
+    await this.save();
     return this;
 };
 

@@ -3,14 +3,97 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-    Users, MessageSquare, Trash2, Loader2, UserX, Flame, Target
+    Loader2, MoreVertical, ExternalLink, UserMinus, MessageSquare, Calendar, ListChecks
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
+import { Card } from '@/components/ui/GlassCard'; // Correct import
+import { Avatar } from '@/components/ui/Avatar';
+import { EmptyState, LoadingState } from '@/components/ui/EmptyState';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { connectAPI } from '@/lib/connectApi';
-import { cn } from '@/lib/utils';
 import ConnectNav from '@/components/connect/ConnectNav';
+import { connectAPI } from '@/lib/connectApi';
+
+function PartnerRow({ partner, onRemove }) {
+    const [removing, setRemoving] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
+
+    const handleRemove = async () => {
+        if (!confirm(`Remove ${partner.name} from your partners? This cannot be undone.`)) return;
+        setRemoving(true);
+        try {
+            await onRemove(partner.partnerId);
+        } finally {
+            setRemoving(false);
+        }
+    };
+
+    return (
+        <Card className="flex items-center gap-4 p-4" hover>
+            <Avatar name={partner.name} size="md" />
+
+            <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 dark:text-white truncate">{partner.name}</h3>
+                <p className="text-sm text-gray-500 truncate">
+                    Connected since {new Date(partner.connectedAt).toLocaleDateString()}
+                </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <Link href={`/connect/plan/${partner.connectionId}`}>
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-gray-500">
+                        <ListChecks className="w-4 h-4" />
+                    </Button>
+                </Link>
+                <Link href={`/connect/checkin/${partner.connectionId}`}>
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                    </Button>
+                </Link>
+                <Link href={`/connect/chat/${partner.connectionId}`}>
+                    <Button size="sm" className="bg-gray-900 text-white dark:bg-white dark:text-gray-900">
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Chat
+                    </Button>
+                </Link>
+
+                <div className="relative">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowMenu(!showMenu)}
+                        className="h-9 w-9 p-0 text-gray-500"
+                    >
+                        <MoreVertical className="w-4 h-4" />
+                    </Button>
+
+                    {showMenu && (
+                        <>
+                            <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-lg shadow-lg z-50 py-1">
+                                <Link
+                                    href={`/connect/onboarding/${partner.connectionId}`}
+                                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#27272A]"
+                                >
+                                    <ExternalLink className="w-4 h-4" />
+                                    View Onboarding
+                                </Link>
+                                <button
+                                    onClick={handleRemove}
+                                    disabled={removing}
+                                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                >
+                                    {removing ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
+                                    Remove Partner
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </Card>
+    );
+}
 
 export default function PartnersPage() {
     const [partners, setPartners] = useState([]);
@@ -25,33 +108,25 @@ export default function PartnersPage() {
         setLoading(true);
         try {
             const response = await connectAPI.getPartners();
-            // Handle different response structures
             const data = response?.data || response || [];
-            setPartners(Array.isArray(data) ? data : []);
+            setPartners(data);
         } catch (error) {
-            console.error('Failed to load partners:', error);
             setAlert({
                 type: 'error',
-                message: error.response?.data?.message || 'Failed to load partners',
+                message: 'Failed to load partners',
             });
-            setPartners([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleRemovePartner = async (partnerId) => {
-        if (!confirm('Are you sure you want to remove this partner?')) return;
-
+    const handleRemove = async (partnerId) => {
         try {
             await connectAPI.removePartner(partnerId);
             setPartners(prev => prev.filter(p => p.partnerId !== partnerId));
             setAlert({ type: 'success', message: 'Partner removed' });
         } catch (error) {
-            setAlert({
-                type: 'error',
-                message: error.response?.data?.message || 'Failed to remove partner',
-            });
+            setAlert({ type: 'error', message: 'Failed to remove partner' });
         }
     };
 
@@ -61,122 +136,35 @@ export default function PartnersPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="p-6">
+            <div className="max-w-4xl mx-auto px-4 py-8">
                 <ConnectNav />
 
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white">My Partners</h1>
-                        <p className="text-gray-400 text-sm mt-1">
-                            Your connected study partners ({partners.length})
-                        </p>
-                    </div>
+                <div className="mb-8">
+                    <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">My Partners</h1>
+                    <p className="text-sm text-gray-500">Manage your active connections</p>
                 </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                    </div>
+                    <LoadingState count={3} type="row" />
                 ) : partners.length === 0 ? (
-                    <div className="text-center py-20">
-                        <div className="w-16 h-16 rounded-2xl bg-[#1A1B26] flex items-center justify-center mx-auto mb-4 border border-[#2A2B3A]">
-                            <Users className="w-8 h-8 text-gray-500" />
-                        </div>
-                        <h3 className="text-lg font-medium text-white mb-2">No partners yet</h3>
-                        <p className="text-gray-400 text-sm mb-4">
-                            Start discovering study partners to connect with
-                        </p>
-                        <Link href="/connect">
-                            <Button className="bg-primary hover:bg-primary/90 text-white">Find Partners</Button>
-                        </Link>
-                    </div>
+                    <EmptyState
+                        title="No partners yet"
+                        description="Find study partners to start collaborating."
+                        action={() => window.location.href = '/connect'}
+                        actionLabel="Find Partners"
+                    />
                 ) : (
-                    <div className="grid gap-4">
+                    <div className="space-y-3">
                         {partners.map((partner) => (
                             <PartnerRow
-                                key={partner.connectionId}
+                                key={partner.partnerId || partner.connectionId}
                                 partner={partner}
-                                onRemove={handleRemovePartner}
+                                onRemove={handleRemove}
                             />
                         ))}
                     </div>
                 )}
             </div>
         </DashboardLayout>
-    );
-}
-
-function PartnerRow({ partner, onRemove }) {
-    const [removing, setRemoving] = useState(false);
-
-    const handleRemove = async () => {
-        setRemoving(true);
-        await onRemove(partner.partnerId);
-        setRemoving(false);
-    };
-
-    return (
-        <div className="bg-[#151621] border border-[#2A2B3A] p-4 rounded-xl flex items-center gap-4 hover:border-primary/30 transition-colors">
-            {/* Avatar */}
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
-                {partner.name?.charAt(0) || 'U'}
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white">{partner.name}</h3>
-                <div className="flex items-center gap-3 text-sm text-gray-400">
-                    <span>{partner.primaryGoal}</span>
-                    <span>•</span>
-                    <span>{partner.studyLevel}</span>
-                    {partner.progressStats?.currentStreak > 0 && (
-                        <>
-                            <span>•</span>
-                            <span className="flex items-center gap-1 text-orange-400">
-                                <Flame className="w-3 h-3" />
-                                {partner.progressStats.currentStreak} day streak
-                            </span>
-                        </>
-                    )}
-                </div>
-                {partner.currentFocus && (
-                    <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                        <Target className="w-3 h-3" />
-                        <span className="truncate">{partner.currentFocus}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Stats */}
-            <div className="hidden md:block text-right text-sm">
-                <p className="text-gray-400">{partner.messageCount || 0} messages</p>
-                <p className="text-xs text-gray-500">
-                    Connected {new Date(partner.connectedAt).toLocaleDateString()}
-                </p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-2">
-                <Link href={`/connect/chat/${partner.connectionId}`}>
-                    <Button size="sm" className="gap-1 bg-primary hover:bg-primary/90 text-white">
-                        <MessageSquare className="w-4 h-4" />
-                        Chat
-                    </Button>
-                </Link>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRemove}
-                    disabled={removing}
-                    className="text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                >
-                    {removing ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                        <Trash2 className="w-4 h-4" />
-                    )}
-                </Button>
-            </div>
-        </div>
     );
 }

@@ -1,36 +1,30 @@
 'use client';
+import { Avatar } from '@/components/ui/Avatar';
 
 const StudentProfileCard = ({ user }) => {
     return (
-        <div className="bg-[#151621] p-6 rounded-2xl border border-[#2A2B3A] flex flex-col items-center text-center">
-            <div className="relative mb-4 group">
-                <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-primary via-purple-500 to-pink-500">
-                    <img
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`}
-                        alt="Profile"
-                        className="w-full h-full rounded-full bg-[#0B0B15] object-cover border-4 border-[#0B0B15]"
-                    />
+        <div className="bg-[#121217] p-6 rounded-xl border border-white/10 flex flex-col items-center text-center">
+            <div className="mb-4">
+                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-2xl font-bold text-white mb-4 mx-auto border border-white/10">
+                    {user?.name ? user.name.substring(0, 2).toUpperCase() : 'US'}
                 </div>
-                <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-4 border-[#151621] rounded-full"></div>
             </div>
 
             <h3 className="text-lg font-bold text-white mb-1">{user?.name || 'Loading...'}</h3>
             <p className="text-sm text-gray-500 mb-6 capitalize">{user?.role || 'Student'}</p>
 
-            <div className="flex items-center justify-between w-full px-2">
-                <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-3 w-full border-t border-white/10 pt-4">
+                <div className="flex flex-col gap-1 border-r border-white/10">
                     <span className="text-lg font-bold text-white">4</span>
-                    <span className="text-xs text-gray-500">Courses</span>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500">Courses</span>
                 </div>
-                <div className="w-px h-8 bg-[#2A2B3A]"></div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 border-r border-white/10">
                     <span className="text-lg font-bold text-white">85%</span>
-                    <span className="text-xs text-gray-500">Attendance</span>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500">Attendance</span>
                 </div>
-                <div className="w-px h-8 bg-[#2A2B3A]"></div>
                 <div className="flex flex-col gap-1">
                     <span className="text-lg font-bold text-white">3.8</span>
-                    <span className="text-xs text-gray-500">GPA</span>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-500">GPA</span>
                 </div>
             </div>
         </div>
